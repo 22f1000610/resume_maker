@@ -1,0 +1,84 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[top=0.75in, bottom=0.2in, left=0.35in, right=0.35in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{palatino}
+\usepackage{tabularx}
+\fontfamily{SansSerif}\selectfont
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{color}
+\definecolor{mygrey}{gray}{0.82}
+\textheight=9.75in
+\raggedbottom
+\setlength{\tabcolsep}{0in}
+\newcommand{\resheading}[1]{{\small \colorbox{mygrey}{\begin{minipage}{0.99\textwidth}{\textbf{#1 \vphantom{p\^{E}}}}\end{minipage}}}}
+\begin{document}
+
+% ================= HEADER ===================
+\begin{table}
+    \begin{minipage}{0.15\linewidth}
+        \centering
+        \includegraphics[height =0.8in]{cds jnu logo.png}
+    \end{minipage}
+    \begin{minipage}{0.65\linewidth}
+        \setlength{\tabcolsep}{70pt}
+        \def\arraystretch{1.15}
+        \begin{tabular}{ll}
+            \textbf{\Large{ {{FIRSTNAME_LASTNAME}} }}  &  {{EMAIL}} \\
+            \textbf{ {{PROGRAM}} } & \textbf{ M.A. ({{BATCH}}) } \\
+            {{UNIVERSITY_INSTITUTE_LINE1}} &  {{GENDER}}\\
+        \end{tabular}
+    \end{minipage}\hfill
+\end{table}
+
+% ================= EDUCATION ===================
+\setlength{\tabcolsep}{20pt}
+\begin{table}
+\centering
+\begin{tabular}{lllll}
+\toprule
+\textbf{Examination}    & \textbf{University}   & \textbf{Institute}    & \textbf{Year}     & \textbf{CPI/\%} \\
+\toprule
+Post Graduation & {{PG_UNIVERSITY}}    & {{PG_INSTITUTE}}    & {{PG_YEAR}}   & {{PG_GRADE}} \\
+Graduation  & {{UG_UNIVERSITY}} & {{UG_INSTITUTE}}  & {{UG_YEAR}}   & {{UG_GRADE}} \\
+Intermediate/+2     & {{HSC_BOARD}}   & {{HSC_INSTITUTE}} & {{HSC_YEAR}}       & {{HSC_GRADE}}    \\
+Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}          & {{SSC_GRADE}}   \\
+\bottomrule \\[-0.75cm]
+\end{tabular}
+\end{table}
+
+% ================= Dissertation/Term Paper ===================
+\noindent \resheading{\textbf{M.A. DISSERTATION \& PROJECTS}}\\[-0.3cm]
+\begin{itemize}[noitemsep,nolistsep]
+{{DISSERTATION_OR_TERMPAPER_BLOCK}}
+\end{itemize}
+
+% ================= COURSE PROJECTS ===================
+\noindent \resheading{\textbf{COURSE PROJECTS}}\\[-0.3cm]
+\begin{itemize}[noitemsep,nolistsep]
+{{COURSE_PROJECTS_BLOCK}}
+\end{itemize}
+
+% ================= SKILLS ===================
+\noindent \resheading{\textbf{TECHNICAL SKILLS}}\\[-0.4cm]
+\begin{itemize}
+  \item \textbf{Econometrics \& Data Analysis}: {{SKILLS_ECONOMETRICS}}\\[-0.5cm]
+  \item \textbf{Statistical \& ML Techniques}: {{SKILLS_ML}}\\[-0.5cm]
+  \item \textbf{Business \& Data Analytics}: {{SKILLS_BUSINESS}}\\[-0.5cm]
+  \item \textbf{Programming \& Tools}: {{SKILLS_PROGRAMMING}}\\[-0.5cm]
+  \item \textbf{Research \& Consulting Skills}: {{SKILLS_RESEARCH}}\\[-0.5cm]
+\end{itemize}
+
+% ================= EXPERIENCE ===================
+{{WORK_EXPERIENCE_BLOCK}}
+
+% ================= Awards ===================
+\noindent \resheading{\textbf{AWARDS \& ACHIEVEMENTS / EXTRA-CURRICULAR}}\\[-0.3cm]
+\begin{itemize}
+{{AWARDS_BLOCK}}
+\end{itemize}
+
+\end{document}
