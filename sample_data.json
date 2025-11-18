@@ -1,0 +1,79 @@
+{
+  "first_name": "Rahul",
+  "last_name": "Kumar",
+  "email": "rahul24ma@cds.ac.in",
+  "program": "Applied Economics",
+  "batch": "2024-26",
+  "gender": "Male",
+  "ssc": {
+    "board": "SSC",
+    "institute_short": "ABC School",
+    "year": "2018",
+    "grade_x": "93.21",
+    "grade_y": ""
+  },
+  "hsc": {
+    "board": "HSC",
+    "institute_short": "ABC College",
+    "year": "2019--21",
+    "grade_x": "90.23",
+    "grade_y": ""
+  },
+  "ug": {
+    "university": "University Name",
+    "institute_short": "College Name",
+    "year_range": "2021--24",
+    "grade_x": "8.2",
+    "grade_y": "10"
+  },
+  "pg": {
+    "year_range": "2024--26",
+    "show_grade": true,
+    "grade_x": "7",
+    "grade_y": "9"
+  },
+  "dissertation_selected": true,
+  "dissertation": {
+    "title": "Impact of Monetary Policy Transmission on Sectoral Credit in India",
+    "guide_name": "Prof. XYZ",
+    "duration": "Aug'25–Present",
+    "current_work_lines": [
+      "Constructing a monthly panel dataset using RBI, CMIE, MOSPI.",
+      "Estimating policy transmission using local projections."
+    ],
+    "future_work_lines": [
+      "Heterogeneity analysis by bank type.",
+      "Forecasting using VAR/ML models."
+    ]
+  },
+  "term_papers": [],
+  "course_projects": [
+    {
+      "title": "Time Series Forecasting of Inflation in India",
+      "course_code": "AE-201",
+      "duration": "Aug'24–Nov'24",
+      "one_line_description": "Built ARIMA, VAR and Holt-Winters models; RMSE reduced."
+    }
+  ],
+  "skills": {
+    "econometrics": ["STATA", "R", "Python(pandas)"],
+    "ml": ["ARIMA", "Random Forests"],
+    "business": ["Power BI", "Tableau"],
+    "programming": ["Git", "SQL", "LaTeX"],
+    "research": ["Data Cleaning", "Visualization"]
+  },
+  "experience": [
+    {
+      "role": "Research Intern",
+      "org": "XYZ Economic Research Institute",
+      "duration": "Jun'23–Apr'24",
+      "bullets": [
+        "Conducted statistical analysis of labour markets using PLFS.",
+        "Automated data cleaning using Python."
+      ]
+    }
+  ],
+  "awards": [
+    "Academic Merit Award: Top X% of the M.A. batch (2024–25)"
+  ]
+}
