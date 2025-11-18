@@ -47,6 +47,7 @@ def validate_email(email):
 
 def format_grade(grade_x, grade_y):
     """Format grade as X/Y or just X if Y is empty"""
+    # Note: Values should already be escaped before calling this function
     if grade_y and str(grade_y).strip():
         return f"{grade_x}/{grade_y}"
     return str(grade_x)
@@ -94,6 +95,11 @@ def generate_term_papers_block(data):
     papers = data.get('term_papers', [])[:2]  # Max 2
     block = ""
     
+    if not papers:
+        # Add placeholder if no term papers
+        block = "\\item \\textit{(No term papers listed)}\n"
+        return block
+    
     for paper in papers:
         title = escape_latex(paper.get('title', ''))
         guided = paper.get('guided', False)
@@ -109,7 +115,8 @@ def generate_term_papers_block(data):
         block += "\\begin{itemize}[noitemsep,nolistsep]\n"
         
         for line in paper.get('description_lines', []):
-            block += f"  \\item {escape_latex(line)}\n"
+            if line.strip():  # Only add non-empty lines
+                block += f"  \\item {escape_latex(line)}\n"
         
         block += "\\end{itemize}\n"
     
@@ -119,6 +126,11 @@ def generate_course_projects_block(data):
     """Generate course projects LaTeX block"""
     projects = data.get('course_projects', [])
     block = ""
+    
+    if not projects:
+        # Add placeholder if no course projects
+        block = "\\item \\textit{(No course projects listed)}\n"
+        return block
     
     for project in projects:
         title = escape_latex(project.get('title', ''))
@@ -200,21 +212,21 @@ def generate_latex(data):
     replacements['{{SSC_BOARD}}'] = escape_latex(ssc.get('board', ''))
     replacements['{{SSC_INSTITUTE}}'] = escape_latex(ssc.get('institute_short', ''))
     replacements['{{SSC_YEAR}}'] = escape_latex(ssc.get('year', ''))
-    replacements['{{SSC_GRADE}}'] = format_grade(ssc.get('grade_x', ''), ssc.get('grade_y', ''))
+    replacements['{{SSC_GRADE}}'] = format_grade(escape_latex(ssc.get('grade_x', '')), escape_latex(ssc.get('grade_y', '')))
     
     # Education - HSC
     hsc = data.get('hsc', {})
     replacements['{{HSC_BOARD}}'] = escape_latex(hsc.get('board', ''))
     replacements['{{HSC_INSTITUTE}}'] = escape_latex(hsc.get('institute_short', ''))
     replacements['{{HSC_YEAR}}'] = escape_latex(hsc.get('year', ''))
-    replacements['{{HSC_GRADE}}'] = format_grade(hsc.get('grade_x', ''), hsc.get('grade_y', ''))
+    replacements['{{HSC_GRADE}}'] = format_grade(escape_latex(hsc.get('grade_x', '')), escape_latex(hsc.get('grade_y', '')))
     
     # Education - UG
     ug = data.get('ug', {})
     replacements['{{UG_UNIVERSITY}}'] = escape_latex(ug.get('university', ''))
     replacements['{{UG_INSTITUTE}}'] = escape_latex(ug.get('institute_short', ''))
     replacements['{{UG_YEAR}}'] = escape_latex(ug.get('year_range', ''))
-    replacements['{{UG_GRADE}}'] = format_grade(ug.get('grade_x', ''), ug.get('grade_y', ''))
+    replacements['{{UG_GRADE}}'] = format_grade(escape_latex(ug.get('grade_x', '')), escape_latex(ug.get('grade_y', '')))
     
     # Education - PG
     pg = data.get('pg', {})
@@ -223,7 +235,7 @@ def generate_latex(data):
     replacements['{{PG_YEAR}}'] = escape_latex(pg.get('year_range', ''))
     
     if pg.get('show_grade', False):
-        replacements['{{PG_GRADE}}'] = format_grade(pg.get('grade_x', ''), pg.get('grade_y', ''))
+        replacements['{{PG_GRADE}}'] = format_grade(escape_latex(pg.get('grade_x', '')), escape_latex(pg.get('grade_y', '')))
     else:
         replacements['{{PG_GRADE}}'] = ''
     
