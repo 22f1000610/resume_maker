@@ -7,9 +7,18 @@ import shutil
 import tempfile
 from datetime import datetime
 import json
+import requests
+import base64
 
 app = Flask(__name__)
 CORS(app)
+
+# Configuration: Use environment variable to choose compilation mode
+# Options: 'local' (requires TeX Live), 'api' (uses external API, serverless-friendly)
+LATEX_COMPILE_MODE = os.environ.get('LATEX_COMPILE_MODE', 'api')
+
+# LaTeX API endpoint (latex.ytotech.com - free public API)
+LATEX_API_URL = os.environ.get('LATEX_API_URL', 'https://latex.ytotech.com/builds/sync')
 
 # LaTeX special character escaping
 def escape_latex(text):
@@ -268,6 +277,99 @@ def generate_latex(data):
     
     return template
 
+
+def compile_latex_with_api(latex_content, logo_base64=None):
+    """Compile LaTeX to PDF using external API (serverless-friendly)"""
+    # Prepare the API request
+    # Using latex.ytotech.com API format
+    resources = [
+        {
+            "main": True,
+            "content": latex_content
+        }
+    ]
+    
+    # Add logo as a resource if provided
+    if logo_base64:
+        resources.append({
+            "path": "cds jnu logo.png",
+            "file": logo_base64
+        })
+    
+    payload = {
+        "compiler": "pdflatex",
+        "resources": resources
+    }
+    
+    try:
+        response = requests.post(
+            LATEX_API_URL,
+            json=payload,
+            timeout=60
+        )
+        
+        if response.status_code == 200:
+            # Check if we got a PDF
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/pdf' in content_type:
+                return response.content, None
+            else:
+                # API might return JSON with error
+                try:
+                    error_data = response.json()
+                    return None, error_data.get('error', 'Unknown compilation error')
+                except:
+                    return None, 'Unexpected response from LaTeX API'
+        else:
+            try:
+                error_data = response.json()
+                return None, error_data.get('error', f'API returned status {response.status_code}')
+            except:
+                return None, f'LaTeX API returned status {response.status_code}'
+    
+    except requests.Timeout:
+        return None, 'LaTeX API request timed out'
+    except requests.RequestException as e:
+        return None, f'LaTeX API request failed: {str(e)}'
+
+
+def compile_latex_locally(latex_content, tmpdir, base_filename):
+    """Compile LaTeX to PDF using local pdflatex (requires TeX Live)"""
+    # Write LaTeX file
+    tex_path = os.path.join(tmpdir, f"{base_filename}.tex")
+    with open(tex_path, 'w', encoding='utf-8') as f:
+        f.write(latex_content)
+    
+    # Copy logo to temp directory
+    logo_src = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cds jnu logo.png')
+    logo_dst = os.path.join(tmpdir, 'cds jnu logo.png')
+    if os.path.exists(logo_src):
+        shutil.copy(logo_src, logo_dst)
+    
+    # Compile PDF with pdflatex (run twice for references)
+    try:
+        for _ in range(2):
+            result = subprocess.run(
+                ['pdflatex', '-interaction=nonstopmode', '-halt-on-error', 
+                 '-no-shell-escape', f"{base_filename}.tex"],
+                cwd=tmpdir,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+        
+        pdf_path = os.path.join(tmpdir, f"{base_filename}.pdf")
+        if not os.path.exists(pdf_path):
+            return None, f'PDF compilation failed: {result.stderr}'
+        
+        with open(pdf_path, 'rb') as f:
+            return f.read(), None
+            
+    except subprocess.TimeoutExpired:
+        return None, 'PDF compilation timed out'
+    except FileNotFoundError:
+        return None, 'pdflatex not found. Please install TeX Live or use LATEX_COMPILE_MODE=api'
+
 @app.route('/api/generate', methods=['POST'])
 def generate_resume():
     """Generate resume files from JSON data"""
@@ -297,50 +399,51 @@ def generate_resume():
         # Generate LaTeX
         latex_content = generate_latex(data)
         
-        # Create temporary directory for compilation
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Create filename
-            first_name = sanitize_filename(data.get('first_name', ''))
-            last_name = sanitize_filename(data.get('last_name', ''))
-            base_filename = f"{first_name}_{last_name}"
+        # Create filename
+        first_name = sanitize_filename(data.get('first_name', ''))
+        last_name = sanitize_filename(data.get('last_name', ''))
+        base_filename = f"{first_name}_{last_name}"
+        
+        # Compile PDF based on mode
+        pdf_content = None
+        pdf_error = None
+        
+        if LATEX_COMPILE_MODE == 'api':
+            # Use external API for PDF generation (serverless-friendly)
+            # Load and encode the logo file
+            logo_base64 = None
+            logo_src = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cds jnu logo.png')
+            if os.path.exists(logo_src):
+                with open(logo_src, 'rb') as f:
+                    logo_base64 = base64.b64encode(f.read()).decode('utf-8')
             
-            # Write LaTeX file
+            pdf_content, pdf_error = compile_latex_with_api(latex_content, logo_base64)
+        else:
+            # Use local pdflatex (requires TeX Live)
+            with tempfile.TemporaryDirectory() as tmpdir:
+                pdf_content, pdf_error = compile_latex_locally(latex_content, tmpdir, base_filename)
+        
+        if pdf_error:
+            return jsonify({
+                'error': 'PDF compilation failed',
+                'details': pdf_error
+            }), 500
+        
+        # Create temporary directory for DOCX conversion and file storage
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Write files to temp directory
             tex_path = os.path.join(tmpdir, f"{base_filename}.tex")
+            pdf_path = os.path.join(tmpdir, f"{base_filename}.pdf")
+            docx_path = os.path.join(tmpdir, f"{base_filename}.docx")
+            
             with open(tex_path, 'w', encoding='utf-8') as f:
                 f.write(latex_content)
             
-            # Copy logo to temp directory
-            logo_src = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cds jnu logo.png')
-            logo_dst = os.path.join(tmpdir, 'cds jnu logo.png')
-            if os.path.exists(logo_src):
-                shutil.copy(logo_src, logo_dst)
+            with open(pdf_path, 'wb') as f:
+                f.write(pdf_content)
             
-            # Compile PDF with pdflatex (run twice for references)
-            try:
-                for _ in range(2):
-                    result = subprocess.run(
-                        ['pdflatex', '-interaction=nonstopmode', '-halt-on-error', 
-                         '-no-shell-escape', f"{base_filename}.tex"],
-                        cwd=tmpdir,
-                        capture_output=True,
-                        text=True,
-                        timeout=30
-                    )
-                
-                pdf_path = os.path.join(tmpdir, f"{base_filename}.pdf")
-                if not os.path.exists(pdf_path):
-                    return jsonify({
-                        'error': 'PDF compilation failed',
-                        'details': result.stderr
-                    }), 500
-                
-            except subprocess.TimeoutExpired:
-                return jsonify({'error': 'PDF compilation timed out'}), 500
-            except FileNotFoundError:
-                return jsonify({'error': 'pdflatex not found. Please install TeX Live'}), 500
-            
-            # Convert to DOCX with pandoc
-            docx_path = os.path.join(tmpdir, f"{base_filename}.docx")
+            # Convert to DOCX with pandoc (best effort, may not be available in serverless)
+            docx_content = None
             try:
                 subprocess.run(
                     ['pandoc', tex_path, '-o', docx_path, '--from=latex', '--to=docx'],
@@ -349,27 +452,14 @@ def generate_resume():
                     timeout=30,
                     check=True
                 )
-            except subprocess.TimeoutExpired:
-                return jsonify({'error': 'DOCX conversion timed out'}), 500
-            except FileNotFoundError:
-                return jsonify({'error': 'pandoc not found. Please install pandoc'}), 500
-            except subprocess.CalledProcessError as e:
-                # DOCX conversion is best effort
-                print(f"DOCX conversion warning: {e.stderr}")
+                if os.path.exists(docx_path):
+                    with open(docx_path, 'rb') as f:
+                        docx_content = f.read()
+            except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError) as e:
+                # DOCX conversion is best effort - skip if pandoc not available
+                print(f"DOCX conversion skipped: {str(e)}")
             
-            # Read generated files
-            with open(tex_path, 'r', encoding='utf-8') as f:
-                tex_content = f.read()
-            
-            with open(pdf_path, 'rb') as f:
-                pdf_content = f.read()
-            
-            docx_content = None
-            if os.path.exists(docx_path):
-                with open(docx_path, 'rb') as f:
-                    docx_content = f.read()
-            
-            # Save files temporarily for download
+            # Save files for download
             output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output')
             os.makedirs(output_dir, exist_ok=True)
             
@@ -378,7 +468,7 @@ def generate_resume():
             output_docx = os.path.join(output_dir, f"{base_filename}.docx")
             
             with open(output_tex, 'w', encoding='utf-8') as f:
-                f.write(tex_content)
+                f.write(latex_content)
             
             with open(output_pdf, 'wb') as f:
                 f.write(pdf_content)
@@ -395,7 +485,8 @@ def generate_resume():
                     'pdf': f"/api/download/{base_filename}.pdf",
                     'docx': f"/api/download/{base_filename}.docx" if docx_content else None
                 },
-                'latex_preview': tex_content
+                'latex_preview': latex_content,
+                'compile_mode': LATEX_COMPILE_MODE
             })
     
     except Exception as e:

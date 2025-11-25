@@ -21,7 +21,51 @@ This guide covers deploying the Resume Maker application to production.
 
 ## Deployment Options
 
-### Option 1: Traditional Server Deployment
+### Option 1: Serverless Deployment (Recommended)
+
+The application supports serverless deployment using an external LaTeX API for PDF generation. No TeX Live installation required.
+
+#### Vercel Deployment
+
+1. **Install Vercel CLI:**
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Create `vercel.json` in project root:**
+   ```json
+   {
+     "builds": [
+       { "src": "backend/app.py", "use": "@vercel/python" }
+     ],
+     "routes": [
+       { "src": "/api/(.*)", "dest": "backend/app.py" }
+     ]
+   }
+   ```
+
+3. **Set environment variables in Vercel:**
+   ```
+   LATEX_COMPILE_MODE=api
+   ```
+
+4. **Deploy:**
+   ```bash
+   vercel
+   ```
+
+#### AWS Lambda / Google Cloud Functions
+
+1. **Set environment variable:**
+   ```
+   LATEX_COMPILE_MODE=api
+   ```
+
+2. **Deploy using your preferred framework** (Serverless Framework, SAM, etc.)
+
+> **Note:** Serverless deployments use the external LaTeX API (latex.ytotech.com) for PDF generation. DOCX conversion is skipped if pandoc is not available.
+
+### Option 2: Traditional Server Deployment
 
 #### Backend
 
@@ -115,7 +159,7 @@ This guide covers deploying the Resume Maker application to production.
    sudo certbot --nginx -d your-domain.com
    ```
 
-### Option 2: Docker Deployment
+### Option 3: Docker Deployment
 
 1. **Create Dockerfile for backend** (`Dockerfile.backend`):
    ```dockerfile
@@ -193,7 +237,7 @@ This guide covers deploying the Resume Maker application to production.
    docker-compose up -d
    ```
 
-### Option 3: Cloud Platform (Heroku Example)
+### Option 4: Cloud Platform (Heroku Example)
 
 1. **Create Procfile:**
    ```
@@ -227,6 +271,12 @@ FLASK_DEBUG=False
 
 # Frontend API URL
 REACT_APP_API_URL=https://api.your-domain.com
+
+# LaTeX compilation mode: 'api' (serverless) or 'local' (requires TeX Live)
+LATEX_COMPILE_MODE=api
+
+# Optional: Custom LaTeX API URL
+# LATEX_API_URL=https://latex.ytotech.com/builds/sync
 
 # Optional: File storage
 OUTPUT_DIR=/var/resume_maker/output
