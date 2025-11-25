@@ -308,7 +308,8 @@ def compile_latex_with_api(latex_content, logo_base64=None):
             timeout=60
         )
         
-        if response.status_code == 200:
+        # Check for successful status (200 OK or 201 Created)
+        if response.status_code in (200, 201):
             # Check if we got a PDF
             content_type = response.headers.get('Content-Type', '')
             if 'application/pdf' in content_type:

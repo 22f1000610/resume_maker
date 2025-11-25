@@ -51,6 +51,27 @@ Hello World
         self.assertEqual(pdf_content, b'%PDF-1.4 mock pdf content')
 
     @patch('app.requests.post')
+    def test_compile_latex_with_api_success_201(self, mock_post):
+        """Test successful API compilation with 201 Created status"""
+        # Mock a successful PDF response with 201 status (actual API behavior)
+        mock_response = MagicMock()
+        mock_response.status_code = 201
+        mock_response.headers = {'Content-Type': 'application/pdf'}
+        mock_response.content = b'%PDF-1.4 mock pdf content'
+        mock_post.return_value = mock_response
+        
+        simple_latex = r"""\documentclass{article}
+\begin{document}
+Hello World
+\end{document}"""
+        
+        pdf_content, error = compile_latex_with_api(simple_latex)
+        
+        self.assertIsNotNone(pdf_content)
+        self.assertIsNone(error)
+        self.assertEqual(pdf_content, b'%PDF-1.4 mock pdf content')
+
+    @patch('app.requests.post')
     def test_compile_latex_with_api_error(self, mock_post):
         """Test API compilation with error response"""
         mock_response = MagicMock()
