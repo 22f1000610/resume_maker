@@ -319,13 +319,13 @@ def compile_latex_with_api(latex_content, logo_base64=None):
                 try:
                     error_data = response.json()
                     return None, error_data.get('error', 'Unknown compilation error')
-                except (ValueError, json.JSONDecodeError):
+                except ValueError:
                     return None, 'Unexpected response from LaTeX API'
         else:
             try:
                 error_data = response.json()
                 return None, error_data.get('error', f'API returned status {response.status_code}')
-            except (ValueError, json.JSONDecodeError):
+            except ValueError:
                 return None, f'LaTeX API returned status {response.status_code}'
     
     except requests.Timeout:
