@@ -220,7 +220,7 @@ function generateLatex(data) {
     \\begin{minipage}{0.15\\linewidth}
         \\centering
         \\includegraphics[height =0.8in]{cds jnu logo.png}
-    \\end{minipage}\\hspace{0.5cm}
+    \\end{minipage}\\hspace{0.10cm}
     \\begin{minipage}{0.50\\linewidth}
         \\setlength{\\tabcolsep}{0pt}
         \\def\\arraystretch{1.15}
