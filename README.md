@@ -14,6 +14,7 @@ A comprehensive web application for creating professional resumes for CDS JNU M.
 - Support for dissertations or term papers (max 2)
 - Unlimited course projects with validation
 - Work experience and awards sections
+- **Serverless-friendly**: Supports external LaTeX API for PDF generation (no TeX Live required)
 
 ## Prerequisites
 
@@ -21,14 +22,18 @@ Before installation, ensure you have:
 
 - **Python 3.8+** - Backend server
 - **Node.js 14+** and **npm** - Frontend application
-- **TeX Live** (pdflatex) - PDF compilation
+
+### Optional Dependencies (for local compilation mode)
+- **TeX Live** (pdflatex) - PDF compilation (only needed if using `LATEX_COMPILE_MODE=local`)
   - Ubuntu/Debian: `sudo apt-get install texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra`
   - macOS: `brew install --cask mactex-no-gui`
   - Windows: Download from [TeX Live](https://www.tug.org/texlive/)
-- **Pandoc** - DOCX conversion
+- **Pandoc** - DOCX conversion (optional, for `.docx` output)
   - Ubuntu/Debian: `sudo apt-get install pandoc`
   - macOS: `brew install pandoc`
   - Windows: Download from [Pandoc](https://pandoc.org/installing.html)
+
+> **Note:** By default, the app uses an external LaTeX API for PDF generation, making it serverless-friendly without requiring TeX Live installation.
 
 ## Quick Start
 
@@ -189,12 +194,40 @@ A sample JSON file (`sample_data.json`) is provided for testing. You can use thi
 - `GET /health` - Health check
   - Output: `{"status": "healthy"}`
 
+## Environment Variables
+
+Configure the application using these environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LATEX_COMPILE_MODE` | `api` | Compilation mode: `api` (serverless-friendly, uses external API) or `local` (requires TeX Live) |
+| `LATEX_API_URL` | `https://latex.ytotech.com/builds/sync` | Custom LaTeX API endpoint (only used when `LATEX_COMPILE_MODE=api`) |
+| `REACT_APP_API_URL` | `http://localhost:5000` | Backend API URL for frontend |
+
+### Serverless Deployment
+
+For serverless platforms (Vercel, AWS Lambda, Google Cloud Functions, etc.), use the default `api` mode:
+
+```bash
+# No TeX Live needed - uses external LaTeX API
+LATEX_COMPILE_MODE=api
+```
+
+### Local Development with TeX Live
+
+If you prefer local PDF compilation:
+
+```bash
+# Requires TeX Live installed
+LATEX_COMPILE_MODE=local
+```
+
 ## Troubleshooting
 
 ### PDF Compilation Fails
 
 **Issue:** "pdflatex not found"
-- **Solution:** Install TeX Live (see Prerequisites)
+- **Solution:** Either install TeX Live (see Prerequisites) or use `LATEX_COMPILE_MODE=api` (default) to use the external LaTeX API
 
 **Issue:** "Compilation failed" error
 - **Solution:** Check LaTeX logs in the error message. Common issues:
@@ -202,10 +235,13 @@ A sample JSON file (`sample_data.json`) is provided for testing. You can use thi
   - Missing logo file
   - Invalid LaTeX syntax in user input
 
+**Issue:** LaTeX API timeout or network error
+- **Solution:** Check your internet connection. The external API (latex.ytotech.com) requires network access.
+
 ### DOCX Conversion Fails
 
 **Issue:** "pandoc not found"
-- **Solution:** Install Pandoc (see Prerequisites)
+- **Solution:** Install Pandoc (see Prerequisites) or accept PDF-only output (DOCX is optional)
 
 **Issue:** DOCX has formatting issues
 - **Expected:** Pandoc conversion is "best effort". Some LaTeX formatting may not translate perfectly to DOCX.
