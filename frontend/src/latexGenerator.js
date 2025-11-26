@@ -101,8 +101,8 @@ function generateDissertationBlock(data) {
   const currentLines = diss.current_work_lines || [];
   const futureLines = diss.future_work_lines || [];
   
-  let block = `\\item \\textbf{Dissertation Title: ${title}} \\\\ 
-\\emph{(M.A. Dissertation | Guide: \\textbf{${guide}})} \\hfill \\emph{(${duration})}   
+  let block = `\\item \\textbf{Dissertation Title: ${title}} \\ 
+\\emph{(M.A. Dissertation | Guide: \\textbf{${guide}})} \\hfill \\emph{(${duration})}\\\\
 \\textbf{Current Work:}\\\\[-0.4cm]
 \\begin{itemize}[noitemsep,nolistsep]
 `;
@@ -176,12 +176,12 @@ function generateTermPapersBlock(data) {
  */
 function generateCourseProjectsBlock(data) {
   const projects = data.course_projects || [];
-  let block = '';
   
   if (!projects.length) {
-    block = '\\item \\textit{(No course projects listed)}\n';
-    return block;
+    return '__EMPTY_COURSE_PROJECTS__';
   }
+  
+  let block = '';
   
   for (const project of projects) {
     const title = escapeLatex(project.title || '');
@@ -244,14 +244,15 @@ function generateAwardsBlock(data) {
   const awards = data.awards || [];
   let block = '';
   
-  if (!awards.length) {
-    block = '\\item \\textit{(Add achievements here --- teaching, presentations, or conferences are valid.)}\n';
-  } else {
-    for (const award of awards) {
-      if (award && award.trim()) {
-        block += `\\item \\textbf{${escapeLatex(award)}}\n`;
-      }
-    }
+  // Filter out empty awards
+  const validAwards = awards.filter(award => award && award.trim());
+  
+  if (!validAwards.length) {
+    return '__EMPTY_AWARDS__';
+  }
+  
+  for (const award of validAwards) {
+    block += `\\item \\textbf{${escapeLatex(award)}}\n`;
   }
   
   return block;
@@ -285,15 +286,25 @@ const LATEX_TEMPLATE = `\\documentclass[a4paper,10pt]{article}
         \\centering
         \\includegraphics[height =0.8in]{cds jnu logo.png}
     \\end{minipage}
-    \\begin{minipage}{0.65\\linewidth}
-        \\setlength{\\tabcolsep}{50pt}
+    \\begin{minipage}{0.55\\linewidth}
+        \\setlength{\\tabcolsep}{0pt}
         \\def\\arraystretch{1.15}
-        \\begin{tabular}{ll}
-            \\textbf{\\Large{ {{FIRSTNAME_LASTNAME}} }}  &  {{EMAIL}} \\\\
-            \\textbf{ {{PROGRAM}} } & \\textbf{ M.A. ({{BATCH}}) } \\\\
-            {{UNIVERSITY_INSTITUTE_LINE1}} &  {{GENDER}}\\\\
+        \\begin{tabular}{@{}l}
+            \\textbf{\\Large{{{FIRSTNAME_LASTNAME}}}} \\\\
+            \\textbf{{{PROGRAM}}} \\\\
+            {{UNIVERSITY_INSTITUTE_LINE1}} \\\\
         \\end{tabular}
     \\end{minipage}\\hfill
+    \\begin{minipage}{0.25\\linewidth}
+        \\raggedleft
+        \\setlength{\\tabcolsep}{0pt}
+        \\def\\arraystretch{1.15}
+        \\begin{tabular}{@{}r@{}}
+            {{EMAIL}} \\\\
+            \\textbf{M.A. ({{BATCH}})} \\\\
+            {{GENDER}} \\\\
+        \\end{tabular}
+    \\end{minipage}
 \\end{table}
 
 % ================= EDUCATION ===================
@@ -319,10 +330,7 @@ Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}         
 \\end{itemize}
 
 % ================= COURSE PROJECTS ===================
-\\noindent \\resheading{\\textbf{COURSE PROJECTS}}\\\\[-0.3cm]
-\\begin{itemize}[noitemsep,nolistsep]
-{{COURSE_PROJECTS_BLOCK}}
-\\end{itemize}
+{{COURSE_PROJECTS_SECTION}}
 
 % ================= SKILLS ===================
 \\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
@@ -338,10 +346,7 @@ Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}         
 {{WORK_EXPERIENCE_BLOCK}}
 
 % ================= Awards ===================
-\\noindent \\resheading{\\textbf{AWARDS \\& ACHIEVEMENTS / EXTRA-CURRICULAR}}\\\\[-0.3cm]
-\\begin{itemize}
-{{AWARDS_BLOCK}}
-\\end{itemize}
+{{AWARDS_SECTION}}
 
 \\end{document}
 `;
@@ -408,8 +413,16 @@ export function generateLatex(data) {
     replacements['{{DISSERTATION_OR_TERMPAPER_BLOCK}}'] = generateTermPapersBlock(data);
   }
   
-  // Course Projects
-  replacements['{{COURSE_PROJECTS_BLOCK}}'] = generateCourseProjectsBlock(data);
+  // Course Projects - only show section if there are projects
+  const courseProjectsContent = generateCourseProjectsBlock(data);
+  if (courseProjectsContent === '__EMPTY_COURSE_PROJECTS__') {
+    replacements['{{COURSE_PROJECTS_SECTION}}'] = '';
+  } else {
+    replacements['{{COURSE_PROJECTS_SECTION}}'] = `\\noindent \\resheading{\\textbf{COURSE PROJECTS}}\\\\[-0.3cm]
+\\begin{itemize}[noitemsep,nolistsep]
+${courseProjectsContent}
+\\end{itemize}`;
+  }
   
   // Skills
   const skills = data.skills || {};
@@ -422,8 +435,16 @@ export function generateLatex(data) {
   // Experience
   replacements['{{WORK_EXPERIENCE_BLOCK}}'] = generateExperienceBlock(data);
   
-  // Awards
-  replacements['{{AWARDS_BLOCK}}'] = generateAwardsBlock(data);
+  // Awards - only show section if there are awards
+  const awardsContent = generateAwardsBlock(data);
+  if (awardsContent === '__EMPTY_AWARDS__') {
+    replacements['{{AWARDS_SECTION}}'] = '';
+  } else {
+    replacements['{{AWARDS_SECTION}}'] = `\\noindent \\resheading{\\textbf{AWARDS \\& ACHIEVEMENTS / EXTRA-CURRICULAR}}\\\\[-0.3cm]
+\\begin{itemize}
+${awardsContent}
+\\end{itemize}`;
+  }
   
   // Replace all placeholders
   for (const [placeholder, value] of Object.entries(replacements)) {
