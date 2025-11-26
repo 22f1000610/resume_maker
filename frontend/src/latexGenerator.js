@@ -101,7 +101,7 @@ function generateDissertationBlock(data) {
   const currentLines = diss.current_work_lines || [];
   const futureLines = diss.future_work_lines || [];
   
-  let block = `\\item \\textbf{Dissertation Title: ${title}} \\ 
+  let block = `\\item \\textbf{Dissertation Title: ${title}} \\\\
 \\emph{(M.A. Dissertation | Guide: \\textbf{${guide}})} \\hfill \\emph{(${duration})}\\\\
 \\textbf{Current Work:}\\\\[-0.4cm]
 \\begin{itemize}[noitemsep,nolistsep]
@@ -285,8 +285,8 @@ const LATEX_TEMPLATE = `\\documentclass[a4paper,10pt]{article}
     \\begin{minipage}{0.15\\linewidth}
         \\centering
         \\includegraphics[height =0.8in]{cds jnu logo.png}
-    \\end{minipage}
-    \\begin{minipage}{0.55\\linewidth}
+    \\end{minipage}\\hspace{0.5cm}
+    \\begin{minipage}{0.50\\linewidth}
         \\setlength{\\tabcolsep}{0pt}
         \\def\\arraystretch{1.15}
         \\begin{tabular}{@{}l}
