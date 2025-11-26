@@ -276,16 +276,16 @@ function App() {
   const handleDownloadTex = () => {
     const firstName = sanitizeFilename(formData.first_name || '');
     const lastName = sanitizeFilename(formData.last_name || '');
-    const filename = `${firstName}_${lastName}.tex`;
-    downloadText(latexPreview, filename, 'application/x-latex');
+    const baseName = firstName && lastName ? `${firstName}_${lastName}` : firstName || lastName || 'resume';
+    downloadText(latexPreview, `${baseName}.tex`, 'application/x-latex');
   };
 
   const handleDownloadPdf = () => {
     if (pdfBlob) {
       const firstName = sanitizeFilename(formData.first_name || '');
       const lastName = sanitizeFilename(formData.last_name || '');
-      const filename = `${firstName}_${lastName}.pdf`;
-      downloadBlob(pdfBlob, filename);
+      const baseName = firstName && lastName ? `${firstName}_${lastName}` : firstName || lastName || 'resume';
+      downloadBlob(pdfBlob, `${baseName}.pdf`);
     }
   };
 

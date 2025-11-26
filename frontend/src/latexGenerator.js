@@ -45,6 +45,8 @@ export function escapeLatex(text) {
 
 /**
  * Validate course code format AE-XXX
+ * Note: This validation is specific to CDS JNU Applied Economics program.
+ * Modify the regex pattern if needed for other programs (e.g., /^[A-Z]{2}-\d{3}$/)
  * @param {string} code - Course code to validate
  * @returns {boolean} - True if valid
  */

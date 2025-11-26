@@ -2,6 +2,7 @@
  * Test script to generate a PDF resume using the LaTeX API
  * This demonstrates the serverless PDF generation capability
  * 
+ * Requirements: Node.js 18+ (for built-in fetch support)
  * Usage: node test_pdf_generation.js
  */
 
