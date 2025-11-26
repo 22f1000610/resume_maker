@@ -285,7 +285,7 @@ const LATEX_TEMPLATE = `\\documentclass[a4paper,10pt]{article}
     \\begin{minipage}{0.15\\linewidth}
         \\centering
         \\includegraphics[height =0.8in]{cds jnu logo.png}
-    \\end{minipage}\\hspace{0.10cm}
+    \\end{minipage}\\hspace{1.5cm}
     \\begin{minipage}{0.50\\linewidth}
         \\setlength{\\tabcolsep}{0pt}
         \\def\\arraystretch{1.15}
