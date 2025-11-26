@@ -440,6 +440,9 @@ export function generateLatex(data) {
  */
 export async function compileLatexToPdf(latexContent) {
   // Prepare the API request using latex.ytotech.com API format
+  // Strip the data URI prefix from base64 if present (API expects raw base64)
+  const logoBase64Clean = LOGO_BASE64.replace(/^data:image\/\w+;base64,/, '');
+  
   const resources = [
     {
       main: true,
@@ -447,7 +450,7 @@ export async function compileLatexToPdf(latexContent) {
     },
     {
       path: 'cds jnu logo.png',
-      file: LOGO_BASE64
+      file: logoBase64Clean
     }
   ];
   
