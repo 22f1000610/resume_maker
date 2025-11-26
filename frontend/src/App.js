@@ -265,7 +265,17 @@ function App() {
         tex: true,
         pdf: result.pdf !== null
       });
-      alert('Resume generated successfully!');
+      
+      // Auto-download PDF if generation was successful
+      if (result.pdf) {
+        const firstName = sanitizeFilename(formData.first_name || '');
+        const lastName = sanitizeFilename(formData.last_name || '');
+        const baseName = firstName && lastName ? `${firstName}_${lastName}` : firstName || lastName || 'resume';
+        downloadBlob(result.pdf, `${baseName}.pdf`);
+        alert('Resume generated and downloaded successfully!');
+      } else {
+        alert('Resume generated successfully! Click "Download .pdf" to save.');
+      }
     } catch (error) {
       alert('Error generating resume: ' + error.message);
     } finally {
