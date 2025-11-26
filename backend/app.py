@@ -292,7 +292,7 @@ def compile_latex_with_api(latex_content, logo_base64=None):
     # Add logo as a resource if provided
     if logo_base64:
         resources.append({
-            "path": "cds jnu logo.png",
+            "path": "logo.png",
             "file": logo_base64
         })
     
@@ -341,9 +341,9 @@ def compile_latex_locally(latex_content, tmpdir, base_filename):
     with open(tex_path, 'w', encoding='utf-8') as f:
         f.write(latex_content)
     
-    # Copy logo to temp directory
+    # Copy logo to temp directory (using simple filename to avoid issues with spaces)
     logo_src = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cds jnu logo.png')
-    logo_dst = os.path.join(tmpdir, 'cds jnu logo.png')
+    logo_dst = os.path.join(tmpdir, 'logo.png')
     if os.path.exists(logo_src):
         shutil.copy(logo_src, logo_dst)
     
