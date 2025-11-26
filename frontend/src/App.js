@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { SKILLS_DATA, SKILLS_CATEGORIES } from './skillsData';
+import { 
+  generateLatex, 
+  generateResume, 
+  downloadBlob, 
+  downloadText,
+  sanitizeFilename 
+} from './latexGenerator';
 import './index.css';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function App() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -44,6 +48,8 @@ function App() {
   const [latexPreview, setLatexPreview] = useState('');
   const [generatedFiles, setGeneratedFiles] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [pdfBlob, setPdfBlob] = useState(null);
 
   const steps = [
     'Header & Personal Info',
@@ -234,34 +240,53 @@ function App() {
   const generatePreview = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/preview-latex`, formData);
-      setLatexPreview(response.data.latex);
+      const latex = generateLatex(formData);
+      setLatexPreview(latex);
     } catch (error) {
-      alert('Error generating preview: ' + (error.response?.data?.error || error.message));
+      alert('Error generating preview: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const generateResume = async () => {
+  const handleGenerateResume = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/generate`, formData);
+      const result = await generateResume(formData);
       
-      if (response.data.success) {
-        setGeneratedFiles(response.data.files);
-        setLatexPreview(response.data.latex_preview);
-        alert('Resume generated successfully!');
+      if (result.error) {
+        alert('Error generating resume: ' + result.error);
+        return;
       }
+      
+      setLatexPreview(result.latex);
+      setPdfBlob(result.pdf);
+      setGeneratedFiles({
+        tex: true,
+        pdf: result.pdf !== null
+      });
+      alert('Resume generated successfully!');
     } catch (error) {
-      alert('Error generating resume: ' + (error.response?.data?.error || error.message));
+      alert('Error generating resume: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const downloadFile = (filename) => {
-    window.open(`${API_BASE_URL}/api/download/${filename}`, '_blank');
+  const handleDownloadTex = () => {
+    const firstName = sanitizeFilename(formData.first_name || '');
+    const lastName = sanitizeFilename(formData.last_name || '');
+    const filename = `${firstName}_${lastName}.tex`;
+    downloadText(latexPreview, filename, 'application/x-latex');
+  };
+
+  const handleDownloadPdf = () => {
+    if (pdfBlob) {
+      const firstName = sanitizeFilename(formData.first_name || '');
+      const lastName = sanitizeFilename(formData.last_name || '');
+      const filename = `${firstName}_${lastName}.pdf`;
+      downloadBlob(pdfBlob, filename);
+    }
   };
 
   const renderStepContent = () => {
@@ -1141,6 +1166,13 @@ function App() {
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-800">Preview & Generate</h2>
             
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-700">
+                💡 <strong>Note:</strong> This app generates PDFs using a serverless LaTeX API. 
+                No backend required - works entirely in your browser!
+              </p>
+            </div>
+            
             <div className="flex gap-4">
               <button
                 onClick={generatePreview}
@@ -1151,11 +1183,11 @@ function App() {
               </button>
               
               <button
-                onClick={generateResume}
+                onClick={handleGenerateResume}
                 disabled={loading}
                 className="flex-1 py-3 px-6 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50"
               >
-                {loading ? 'Generating...' : 'Generate & Compile'}
+                {loading ? 'Generating...' : 'Generate & Compile PDF'}
               </button>
             </div>
 
@@ -1182,29 +1214,25 @@ function App() {
                   ✓ Resume Generated Successfully!
                 </h3>
                 <div className="space-y-2">
-                  <button
-                    onClick={() => downloadFile(generatedFiles.tex.split('/').pop())}
-                    className="w-full py-2 px-4 bg-white border-2 border-green-500 text-green-700 rounded-lg hover:bg-green-50"
-                  >
-                    Download .tex
-                  </button>
-                  <button
-                    onClick={() => downloadFile(generatedFiles.pdf.split('/').pop())}
-                    className="w-full py-2 px-4 bg-white border-2 border-green-500 text-green-700 rounded-lg hover:bg-green-50"
-                  >
-                    Download .pdf
-                  </button>
-                  {generatedFiles.docx && (
+                  {generatedFiles.tex && (
                     <button
-                      onClick={() => downloadFile(generatedFiles.docx.split('/').pop())}
+                      onClick={handleDownloadTex}
                       className="w-full py-2 px-4 bg-white border-2 border-green-500 text-green-700 rounded-lg hover:bg-green-50"
                     >
-                      Download .docx
+                      Download .tex
+                    </button>
+                  )}
+                  {generatedFiles.pdf && (
+                    <button
+                      onClick={handleDownloadPdf}
+                      className="w-full py-2 px-4 bg-white border-2 border-green-500 text-green-700 rounded-lg hover:bg-green-50"
+                    >
+                      Download .pdf
                     </button>
                   )}
                 </div>
                 <p className="text-xs text-gray-600 mt-3">
-                  Note: DOCX converted with pandoc; minor formatting differences possible.
+                  PDF generated using serverless LaTeX API (latex.ytotech.com)
                 </p>
               </div>
             )}
