@@ -197,7 +197,7 @@ function generateLatex(data) {
         \\includegraphics[height =0.8in]{cds jnu logo.png}
     \\end{minipage}
     \\begin{minipage}{0.65\\linewidth}
-        \\setlength{\\tabcolsep}{70pt}
+        \\setlength{\\tabcolsep}{50pt}
         \\def\\arraystretch{1.15}
         \\begin{tabular}{ll}
             \\textbf{\\Large{ ${fullName} }}  &  ${escapeLatex(data.email || '')} \\\\
@@ -208,10 +208,10 @@ function generateLatex(data) {
 \\end{table}
 
 % ================= EDUCATION ===================
-\\setlength{\\tabcolsep}{20pt}
-\\begin{table}
+\\setlength{\\tabcolsep}{5pt}
+\\begin{table}[h!]
 \\centering
-\\begin{tabular}{lllll}
+\\begin{tabularx}{\\textwidth}{l l X l l}
 \\toprule
 \\textbf{Examination}    & \\textbf{University}   & \\textbf{Institute}    & \\textbf{Year}     & \\textbf{CPI/\\%} \\\\
 \\toprule
@@ -220,7 +220,7 @@ Graduation  & ${escapeLatex(ug.university || '')} & ${escapeLatex(ug.institute_s
 Intermediate/+2     & ${escapeLatex(hsc.board || '')}   & ${escapeLatex(hsc.institute_short || '')} & ${escapeLatex(hsc.year || '')}       & ${formatGrade(escapeLatex(hsc.grade_x || ''), escapeLatex(hsc.grade_y || ''))}    \\\\
 Matriculation   & ${escapeLatex(ssc.board || '')}   & ${escapeLatex(ssc.institute_short || '')}    & ${escapeLatex(ssc.year || '')}          & ${formatGrade(escapeLatex(ssc.grade_x || ''), escapeLatex(ssc.grade_y || ''))}   \\\\
 \\bottomrule \\\\[-0.75cm]
-\\end{tabular}
+\\end{tabularx}
 \\end{table}
 
 % ================= Dissertation/Term Paper ===================

@@ -1253,7 +1253,7 @@ function App() {
             CDS JNU Resume Maker
           </h1>
           <p className="text-gray-600">
-            Create your M.A. Resume — quick, clean, and downloadable (.tex, .pdf, .docx)
+            Create your M.A. Resume — quick, clean, and downloadable (.tex, .pdf)
           </p>
         </div>
 

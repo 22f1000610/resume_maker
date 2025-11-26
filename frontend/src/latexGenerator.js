@@ -286,7 +286,7 @@ const LATEX_TEMPLATE = `\\documentclass[a4paper,10pt]{article}
         \\includegraphics[height =0.8in]{cds jnu logo.png}
     \\end{minipage}
     \\begin{minipage}{0.65\\linewidth}
-        \\setlength{\\tabcolsep}{70pt}
+        \\setlength{\\tabcolsep}{50pt}
         \\def\\arraystretch{1.15}
         \\begin{tabular}{ll}
             \\textbf{\\Large{ {{FIRSTNAME_LASTNAME}} }}  &  {{EMAIL}} \\\\
@@ -297,10 +297,10 @@ const LATEX_TEMPLATE = `\\documentclass[a4paper,10pt]{article}
 \\end{table}
 
 % ================= EDUCATION ===================
-\\setlength{\\tabcolsep}{20pt}
-\\begin{table}
+\\setlength{\\tabcolsep}{5pt}
+\\begin{table}[h!]
 \\centering
-\\begin{tabular}{lllll}
+\\begin{tabularx}{\\textwidth}{l l X l l}
 \\toprule
 \\textbf{Examination}    & \\textbf{University}   & \\textbf{Institute}    & \\textbf{Year}     & \\textbf{CPI/\\%} \\\\
 \\toprule
@@ -309,7 +309,7 @@ Graduation  & {{UG_UNIVERSITY}} & {{UG_INSTITUTE}}  & {{UG_YEAR}}   & {{UG_GRADE
 Intermediate/+2     & {{HSC_BOARD}}   & {{HSC_INSTITUTE}} & {{HSC_YEAR}}       & {{HSC_GRADE}}    \\\\
 Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}          & {{SSC_GRADE}}   \\\\
 \\bottomrule \\\\[-0.75cm]
-\\end{tabular}
+\\end{tabularx}
 \\end{table}
 
 % ================= Dissertation/Term Paper ===================
