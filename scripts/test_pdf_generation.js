@@ -59,8 +59,8 @@ function generateDissertationBlock(data) {
   const currentLines = diss.current_work_lines || [];
   const futureLines = diss.future_work_lines || [];
   
-  let block = `\\item \\textbf{Dissertation Title: ${title}} \\\\ 
-\\emph{(M.A. Dissertation | Guide: \\textbf{${guide}})} \\hfill \\emph{(${duration})}   
+  let block = `\\item \\textbf{Dissertation Title: ${title}} \\ 
+\\emph{(M.A. Dissertation | Guide: \\textbf{${guide}})} \\hfill \\emph{(${duration})}\\\\
 \\textbf{Current Work:}\\\\[-0.4cm]
 \\begin{itemize}[noitemsep,nolistsep]
 `;
@@ -105,7 +105,7 @@ function generateTermPapersBlock(data) {
 
 function generateCourseProjectsBlock(data) {
   const projects = data.course_projects || [];
-  if (!projects.length) return '\\item \\textit{(No course projects listed)}\n';
+  if (!projects.length) return '__EMPTY_COURSE_PROJECTS__';
   
   let block = '';
   for (const project of projects) {
@@ -147,14 +147,39 @@ function generateExperienceBlock(data) {
 
 function generateAwardsBlock(data) {
   const awards = data.awards || [];
-  if (!awards.length) {
-    return '\\item \\textit{(Add achievements here --- teaching, presentations, or conferences are valid.)}\n';
+  const validAwards = awards.filter(award => award && award.trim());
+  if (!validAwards.length) {
+    return '__EMPTY_AWARDS__';
   }
   let block = '';
-  for (const award of awards) {
-    if (award && award.trim()) block += `\\item \\textbf{${escapeLatex(award)}}\n`;
+  for (const award of validAwards) {
+    block += `\\item \\textbf{${escapeLatex(award)}}\n`;
   }
   return block;
+}
+
+// Helper function for conditional course projects section
+function getCourseProjectsSection(data) {
+  const content = generateCourseProjectsBlock(data);
+  if (content === '__EMPTY_COURSE_PROJECTS__') {
+    return '';
+  }
+  return `\\noindent \\resheading{\\textbf{COURSE PROJECTS}}\\\\[-0.3cm]
+\\begin{itemize}[noitemsep,nolistsep]
+${content}
+\\end{itemize}`;
+}
+
+// Helper function for conditional awards section
+function getAwardsSection(data) {
+  const content = generateAwardsBlock(data);
+  if (content === '__EMPTY_AWARDS__') {
+    return '';
+  }
+  return `\\noindent \\resheading{\\textbf{AWARDS \\& ACHIEVEMENTS / EXTRA-CURRICULAR}}\\\\[-0.3cm]
+\\begin{itemize}
+${content}
+\\end{itemize}`;
 }
 
 /**
@@ -196,15 +221,25 @@ function generateLatex(data) {
         \\centering
         \\includegraphics[height =0.8in]{cds jnu logo.png}
     \\end{minipage}
-    \\begin{minipage}{0.65\\linewidth}
-        \\setlength{\\tabcolsep}{50pt}
+    \\begin{minipage}{0.55\\linewidth}
+        \\setlength{\\tabcolsep}{0pt}
         \\def\\arraystretch{1.15}
-        \\begin{tabular}{ll}
-            \\textbf{\\Large{ ${fullName} }}  &  ${escapeLatex(data.email || '')} \\\\
-            \\textbf{ ${escapeLatex(data.program || 'Applied Economics')} } & \\textbf{ M.A. (${escapeLatex(data.batch || '')}) } \\\\
-            ${escapeLatex('Centre For Development Studies, JNU')} &  ${escapeLatex(data.gender || '')}\\\\
+        \\begin{tabular}{@{}l}
+            \\textbf{\\Large{${fullName}}} \\\\
+            \\textbf{${escapeLatex(data.program || 'Applied Economics')}} \\\\
+            ${escapeLatex('Centre For Development Studies, JNU')} \\\\
         \\end{tabular}
     \\end{minipage}\\hfill
+    \\begin{minipage}{0.25\\linewidth}
+        \\raggedleft
+        \\setlength{\\tabcolsep}{0pt}
+        \\def\\arraystretch{1.15}
+        \\begin{tabular}{@{}r@{}}
+            ${escapeLatex(data.email || '')} \\\\
+            \\textbf{M.A. (${escapeLatex(data.batch || '')})} \\\\
+            ${escapeLatex(data.gender || '')} \\\\
+        \\end{tabular}
+    \\end{minipage}
 \\end{table}
 
 % ================= EDUCATION ===================
@@ -230,10 +265,7 @@ ${data.dissertation_selected ? generateDissertationBlock(data) : generateTermPap
 \\end{itemize}
 
 % ================= COURSE PROJECTS ===================
-\\noindent \\resheading{\\textbf{COURSE PROJECTS}}\\\\[-0.3cm]
-\\begin{itemize}[noitemsep,nolistsep]
-${generateCourseProjectsBlock(data)}
-\\end{itemize}
+${getCourseProjectsSection(data)}
 
 % ================= SKILLS ===================
 \\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
@@ -249,10 +281,7 @@ ${generateCourseProjectsBlock(data)}
 ${generateExperienceBlock(data)}
 
 % ================= Awards ===================
-\\noindent \\resheading{\\textbf{AWARDS \\& ACHIEVEMENTS / EXTRA-CURRICULAR}}\\\\[-0.3cm]
-\\begin{itemize}
-${generateAwardsBlock(data)}
-\\end{itemize}
+${getAwardsSection(data)}
 
 \\end{document}
 `;
