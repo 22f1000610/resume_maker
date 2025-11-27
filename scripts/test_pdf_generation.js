@@ -182,6 +182,47 @@ ${content}
 \\end{itemize}`;
 }
 
+// Helper function for conditional skills section - only show categories with skills
+function getSkillsSection(data) {
+  const skills = data.skills || {};
+  const otherSkills = data.otherSkills || {};
+  
+  // Helper to combine selected skills with custom other skills
+  const combineSkills = (category) => {
+    const selectedSkills = skills[category] || [];
+    const customSkills = otherSkills[category] ? 
+      otherSkills[category].split(',').map(s => s.trim()).filter(s => s) : [];
+    const allSkills = [...selectedSkills, ...customSkills];
+    return escapeLatex(allSkills.join(', '));
+  };
+  
+  const skillCategories = [
+    { key: 'econometrics', label: 'Econometrics \\& Data Analysis' },
+    { key: 'ml', label: 'Statistical \\& ML Techniques' },
+    { key: 'business', label: 'Business \\& Data Analytics' },
+    { key: 'programming', label: 'Programming \\& Tools' },
+    { key: 'research', label: 'Research \\& Consulting Skills' }
+  ];
+  
+  const skillItems = skillCategories
+    .map(cat => {
+      const skillsStr = combineSkills(cat.key);
+      if (skillsStr.trim()) {
+        return `  \\item \\textbf{${cat.label}}: ${skillsStr}\\\\[-0.5cm]`;
+      }
+      return null;
+    })
+    .filter(item => item !== null);
+  
+  if (skillItems.length > 0) {
+    return `\\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
+\\begin{itemize}
+${skillItems.join('\n')}
+\\end{itemize}`;
+  }
+  return '';
+}
+
 /**
  * Generate complete LaTeX document
  */
@@ -194,17 +235,6 @@ function generateLatex(data) {
   const hsc = data.hsc || {};
   const ug = data.ug || {};
   const pg = data.pg || {};
-  const skills = data.skills || {};
-  const otherSkills = data.otherSkills || {};
-  
-  // Helper to combine selected skills with custom other skills
-  const combineSkills = (category) => {
-    const selectedSkills = skills[category] || [];
-    const customSkills = otherSkills[category] ? 
-      otherSkills[category].split(',').map(s => s.trim()).filter(s => s) : [];
-    const allSkills = [...selectedSkills, ...customSkills];
-    return escapeLatex(allSkills.join(', '));
-  };
 
   return `\\documentclass[a4paper,10pt]{article}
 \\usepackage[top=0.75in, bottom=0.2in, left=0.35in, right=0.35in]{geometry}
@@ -269,7 +299,7 @@ Matriculation   & ${escapeLatex(ssc.board || '')}   & ${escapeLatex(ssc.institut
 \\end{table}
 
 % ================= Dissertation/Term Paper ===================
-\\noindent \\resheading{\\textbf{M.A. DISSERTATION \\& PROJECTS}}\\\\[-0.3cm]
+\\noindent \\resheading{\\textbf{M.A. DISSERTATION}}\\\\[-0.3cm]
 \\begin{itemize}[noitemsep,nolistsep]
 ${data.dissertation_selected ? generateDissertationBlock(data) : generateTermPapersBlock(data)}
 \\end{itemize}
@@ -278,14 +308,7 @@ ${data.dissertation_selected ? generateDissertationBlock(data) : generateTermPap
 ${getCourseProjectsSection(data)}
 
 % ================= SKILLS ===================
-\\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
-\\begin{itemize}
-  \\item \\textbf{Econometrics \\& Data Analysis}: ${combineSkills('econometrics')}\\\\[-0.5cm]
-  \\item \\textbf{Statistical \\& ML Techniques}: ${combineSkills('ml')}\\\\[-0.5cm]
-  \\item \\textbf{Business \\& Data Analytics}: ${combineSkills('business')}\\\\[-0.5cm]
-  \\item \\textbf{Programming \\& Tools}: ${combineSkills('programming')}\\\\[-0.5cm]
-  \\item \\textbf{Research \\& Consulting Skills}: ${combineSkills('research')}\\\\[-0.5cm]
-\\end{itemize}
+${getSkillsSection(data)}
 
 % ================= EXPERIENCE ===================
 ${generateExperienceBlock(data)}

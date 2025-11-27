@@ -632,7 +632,7 @@ function App() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email *
+                  Student Email *
                 </label>
                 <input
                   type="email"
@@ -979,7 +979,7 @@ function App() {
       case 2: // Dissertation / Term Papers
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">M.A. Dissertation & Projects</h2>
+            <h2 className="text-2xl font-bold text-gray-800">M.A. Dissertation</h2>
             
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm text-gray-700 mb-3">
@@ -1091,7 +1091,7 @@ function App() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Current Work (Max 2 lines, ≤120 chars each)
+                    Current Work (Max 2 lines, ≤200 chars each)
                   </label>
                   {[0, 1].map((i) => (
                     <div key={i} className="mb-2">
@@ -1105,10 +1105,10 @@ function App() {
                         }}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                         placeholder={`Current work line ${i + 1}`}
-                        maxLength={120}
+                        maxLength={200}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        {formData.dissertation.current_work_lines[i].length}/120
+                        {formData.dissertation.current_work_lines[i].length}/200
                       </p>
                     </div>
                   ))}
@@ -1116,7 +1116,7 @@ function App() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Future Work (Max 2 lines, ≤120 chars each)
+                    Future Work (Max 2 lines, ≤200 chars each)
                   </label>
                   {[0, 1].map((i) => (
                     <div key={i} className="mb-2">
@@ -1130,10 +1130,10 @@ function App() {
                         }}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                         placeholder={`Future work line ${i + 1}`}
-                        maxLength={120}
+                        maxLength={200}
                       />
                       <p className="text-xs text-gray-500 mt-1">
-                        {formData.dissertation.future_work_lines[i].length}/120
+                        {formData.dissertation.future_work_lines[i].length}/200
                       </p>
                     </div>
                   ))}
@@ -1237,7 +1237,7 @@ function App() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Description (≤120 chars per line)
+                        Description (≤200 chars per line)
                       </label>
                       {paper.description_lines.map((line, lineIndex) => (
                         <div key={lineIndex} className="mb-2">
@@ -1251,9 +1251,9 @@ function App() {
                             }}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                             placeholder={`Description line ${lineIndex + 1}`}
-                            maxLength={120}
+                            maxLength={200}
                           />
-                          <p className="text-xs text-gray-500 mt-1">{line.length}/120</p>
+                          <p className="text-xs text-gray-500 mt-1">{line.length}/200</p>
                         </div>
                       ))}
                       <button
@@ -1377,7 +1377,7 @@ function App() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    One-line Description (≤120 chars) *
+                    One-line Description (≤200 chars) *
                   </label>
                   <input
                     type="text"
@@ -1385,9 +1385,9 @@ function App() {
                     onChange={(e) => updateCourseProject(index, 'one_line_description', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                     placeholder="Brief description of the project"
-                    maxLength={120}
+                    maxLength={200}
                   />
-                  <p className="text-xs text-gray-500 mt-1">{project.one_line_description.length}/120</p>
+                  <p className="text-xs text-gray-500 mt-1">{project.one_line_description.length}/200</p>
                   {errors[`project_desc_${index}`] && (
                     <p className="text-red-500 text-sm mt-1">{errors[`project_desc_${index}`]}</p>
                   )}
@@ -1590,7 +1590,7 @@ function App() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Responsibilities (Max 4 bullets, ≤120 chars each)
+                    Responsibilities (Max 4 bullets, ≤200 chars each)
                   </label>
                   {exp.bullets.map((bullet, bulletIndex) => (
                     <div key={bulletIndex} className="mb-2">
@@ -1604,9 +1604,9 @@ function App() {
                         }}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                         placeholder={`Responsibility ${bulletIndex + 1}`}
-                        maxLength={120}
+                        maxLength={200}
                       />
-                      <p className="text-xs text-gray-500 mt-1">{bullet.length}/120</p>
+                      <p className="text-xs text-gray-500 mt-1">{bullet.length}/200</p>
                     </div>
                   ))}
                   {exp.bullets.length < 4 && (
@@ -1649,8 +1649,8 @@ function App() {
                   value={award}
                   onChange={(e) => updateAward(index, e.target.value)}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  placeholder="Award or achievement (≤120 chars)"
-                  maxLength={120}
+                  placeholder="Award or achievement (≤200 chars)"
+                  maxLength={200}
                 />
                 <button
                   onClick={() => removeAward(index)}

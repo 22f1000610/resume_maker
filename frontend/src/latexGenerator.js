@@ -324,7 +324,7 @@ Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}         
 \\end{table}
 
 % ================= Dissertation/Term Paper ===================
-\\noindent \\resheading{\\textbf{M.A. DISSERTATION \\& PROJECTS}}\\\\[-0.3cm]
+\\noindent \\resheading{\\textbf{M.A. DISSERTATION}}\\\\[-0.3cm]
 \\begin{itemize}[noitemsep,nolistsep]
 {{DISSERTATION_OR_TERMPAPER_BLOCK}}
 \\end{itemize}
@@ -333,14 +333,7 @@ Matriculation   & {{SSC_BOARD}}   & {{SSC_INSTITUTE}}    & {{SSC_YEAR}}         
 {{COURSE_PROJECTS_SECTION}}
 
 % ================= SKILLS ===================
-\\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
-\\begin{itemize}
-  \\item \\textbf{Econometrics \\& Data Analysis}: {{SKILLS_ECONOMETRICS}}\\\\[-0.5cm]
-  \\item \\textbf{Statistical \\& ML Techniques}: {{SKILLS_ML}}\\\\[-0.5cm]
-  \\item \\textbf{Business \\& Data Analytics}: {{SKILLS_BUSINESS}}\\\\[-0.5cm]
-  \\item \\textbf{Programming \\& Tools}: {{SKILLS_PROGRAMMING}}\\\\[-0.5cm]
-  \\item \\textbf{Research \\& Consulting Skills}: {{SKILLS_RESEARCH}}\\\\[-0.5cm]
-\\end{itemize}
+{{SKILLS_SECTION}}
 
 % ================= EXPERIENCE ===================
 {{WORK_EXPERIENCE_BLOCK}}
@@ -424,7 +417,7 @@ ${courseProjectsContent}
 \\end{itemize}`;
   }
   
-  // Skills
+  // Skills - only show subsections that have skills selected
   const skills = data.skills || {};
   const otherSkills = data.otherSkills || {};
   
@@ -437,11 +430,33 @@ ${courseProjectsContent}
     return escapeLatex(allSkills.join(', '));
   };
   
-  replacements['{{SKILLS_ECONOMETRICS}}'] = combineSkills('econometrics');
-  replacements['{{SKILLS_ML}}'] = combineSkills('ml');
-  replacements['{{SKILLS_BUSINESS}}'] = combineSkills('business');
-  replacements['{{SKILLS_PROGRAMMING}}'] = combineSkills('programming');
-  replacements['{{SKILLS_RESEARCH}}'] = combineSkills('research');
+  // Build skills section dynamically - only include categories with skills
+  const skillCategories = [
+    { key: 'econometrics', label: 'Econometrics \\& Data Analysis' },
+    { key: 'ml', label: 'Statistical \\& ML Techniques' },
+    { key: 'business', label: 'Business \\& Data Analytics' },
+    { key: 'programming', label: 'Programming \\& Tools' },
+    { key: 'research', label: 'Research \\& Consulting Skills' }
+  ];
+  
+  const skillItems = skillCategories
+    .map(cat => {
+      const skillsStr = combineSkills(cat.key);
+      if (skillsStr.trim()) {
+        return `  \\item \\textbf{${cat.label}}: ${skillsStr}\\\\[-0.5cm]`;
+      }
+      return null;
+    })
+    .filter(item => item !== null);
+  
+  if (skillItems.length > 0) {
+    replacements['{{SKILLS_SECTION}}'] = `\\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
+\\begin{itemize}
+${skillItems.join('\n')}
+\\end{itemize}`;
+  } else {
+    replacements['{{SKILLS_SECTION}}'] = '';
+  }
   
   // Experience
   replacements['{{WORK_EXPERIENCE_BLOCK}}'] = generateExperienceBlock(data);
