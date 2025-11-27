@@ -195,6 +195,16 @@ function generateLatex(data) {
   const ug = data.ug || {};
   const pg = data.pg || {};
   const skills = data.skills || {};
+  const otherSkills = data.otherSkills || {};
+  
+  // Helper to combine selected skills with custom other skills
+  const combineSkills = (category) => {
+    const selectedSkills = skills[category] || [];
+    const customSkills = otherSkills[category] ? 
+      otherSkills[category].split(',').map(s => s.trim()).filter(s => s) : [];
+    const allSkills = [...selectedSkills, ...customSkills];
+    return escapeLatex(allSkills.join(', '));
+  };
 
   return `\\documentclass[a4paper,10pt]{article}
 \\usepackage[top=0.75in, bottom=0.2in, left=0.35in, right=0.35in]{geometry}
@@ -270,11 +280,11 @@ ${getCourseProjectsSection(data)}
 % ================= SKILLS ===================
 \\noindent \\resheading{\\textbf{TECHNICAL SKILLS}}\\\\[-0.4cm]
 \\begin{itemize}
-  \\item \\textbf{Econometrics \\& Data Analysis}: ${escapeLatex((skills.econometrics || []).join(', '))}\\\\[-0.5cm]
-  \\item \\textbf{Statistical \\& ML Techniques}: ${escapeLatex((skills.ml || []).join(', '))}\\\\[-0.5cm]
-  \\item \\textbf{Business \\& Data Analytics}: ${escapeLatex((skills.business || []).join(', '))}\\\\[-0.5cm]
-  \\item \\textbf{Programming \\& Tools}: ${escapeLatex((skills.programming || []).join(', '))}\\\\[-0.5cm]
-  \\item \\textbf{Research \\& Consulting Skills}: ${escapeLatex((skills.research || []).join(', '))}\\\\[-0.5cm]
+  \\item \\textbf{Econometrics \\& Data Analysis}: ${combineSkills('econometrics')}\\\\[-0.5cm]
+  \\item \\textbf{Statistical \\& ML Techniques}: ${combineSkills('ml')}\\\\[-0.5cm]
+  \\item \\textbf{Business \\& Data Analytics}: ${combineSkills('business')}\\\\[-0.5cm]
+  \\item \\textbf{Programming \\& Tools}: ${combineSkills('programming')}\\\\[-0.5cm]
+  \\item \\textbf{Research \\& Consulting Skills}: ${combineSkills('research')}\\\\[-0.5cm]
 \\end{itemize}
 
 % ================= EXPERIENCE ===================

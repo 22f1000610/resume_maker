@@ -426,11 +426,22 @@ ${courseProjectsContent}
   
   // Skills
   const skills = data.skills || {};
-  replacements['{{SKILLS_ECONOMETRICS}}'] = escapeLatex((skills.econometrics || []).join(', '));
-  replacements['{{SKILLS_ML}}'] = escapeLatex((skills.ml || []).join(', '));
-  replacements['{{SKILLS_BUSINESS}}'] = escapeLatex((skills.business || []).join(', '));
-  replacements['{{SKILLS_PROGRAMMING}}'] = escapeLatex((skills.programming || []).join(', '));
-  replacements['{{SKILLS_RESEARCH}}'] = escapeLatex((skills.research || []).join(', '));
+  const otherSkills = data.otherSkills || {};
+  
+  // Helper to combine selected skills with custom other skills
+  const combineSkills = (category) => {
+    const selectedSkills = skills[category] || [];
+    const customSkills = otherSkills[category] ? 
+      otherSkills[category].split(',').map(s => s.trim()).filter(s => s) : [];
+    const allSkills = [...selectedSkills, ...customSkills];
+    return escapeLatex(allSkills.join(', '));
+  };
+  
+  replacements['{{SKILLS_ECONOMETRICS}}'] = combineSkills('econometrics');
+  replacements['{{SKILLS_ML}}'] = combineSkills('ml');
+  replacements['{{SKILLS_BUSINESS}}'] = combineSkills('business');
+  replacements['{{SKILLS_PROGRAMMING}}'] = combineSkills('programming');
+  replacements['{{SKILLS_RESEARCH}}'] = combineSkills('research');
   
   // Experience
   replacements['{{WORK_EXPERIENCE_BLOCK}}'] = generateExperienceBlock(data);

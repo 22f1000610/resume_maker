@@ -62,6 +62,13 @@
     "programming": ["Git", "SQL", "LaTeX"],
     "research": ["Data Cleaning", "Visualization"]
   },
+  "otherSkills": {
+    "econometrics": "Custom Econometric Tool",
+    "ml": "Custom ML Library, Neural Networks (advanced)",
+    "business": "",
+    "programming": "Rust, Go",
+    "research": ""
+  },
   "experience": [
     {
       "role": "Research Intern",
